@@ -33,7 +33,7 @@
 - 일별 종가 출력
   - 날짜순 desc
   
-### 예정 기능
+### 추가 예정 기능
 - 토픽, 관련주, 종가 리스트에 대한 Paging 기능 추가
   - Controller, Repo, RepoImpl 구현 완료
   - Front Page 기능 구현 필요
