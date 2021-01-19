@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+    <html xmlns:th="http://www.thymeleaf.org">
+    <!--<head th:replace="fragments/header :: header" />-->
+<body>
+<div class="container">
+    <!--<div th:replace="fragments/bodyHeader :: bodyHeader" />-->
+    <div style="width:15%;float:left">
+        <table class="table table-striped" style="border: 1px solid black;">
+            <thead>
+            <tr>
+                <th style="border: 1px solid black;">ID</th>
+                <th style="border: 1px solid black;">토픽명</th>
+                <th style="border: 1px solid black;">삭제</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="topic : ${topics}">
+                <td th:text="${topic.topicId}"></td>
+                <td class="select_topic" th:text="${topic.topicName}" ></td>
+                <td><input type=button class="delete_topic" style="WIDTH: 20pt; HEIGHT: 15pt" value="X"></td>
+            </tr>
+            </tbody>
+        </table>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <td>토픽명</td>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><input id="save_topic_name"></td>
+            </tr>
+            <tr>
+                <td><input type=button id="save_topic" style="WIDTH: 130pt; HEIGHT: 20pt" value="저장"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="width:25%;float:left">
+        <table class="table table-striped" style="border: 1px solid black;">
+
+            <thead>
+            <tr>
+                <th style="border: 1px solid black;">ID</th>
+                <th style="border: 1px solid black; width: 30%;">종목코드</th>
+                <th style="border: 1px solid black; width: 40%;">종목명</th>
+                <th style="border: 1px solid black; width: 15%;">삭제</th>
+            </tr>
+            </thead>
+
+            <tbody id="topicStock_list">
+            <tr th:each="topicStock : ${topicStocks}">
+                <td th:text="${topicStock.topicStockId}"></td>
+                <td th:text="${topicStock.stockCode}"></td>
+                <td class="select_topicStock" th:text="${topicStock.stockName}"></td>
+                <td><input type=button class="delete_topicStock" style="WIDTH: 20pt; HEIGHT: 15pt" value="X"></td>
+            </tr>
+            </tbody>
+
+        </table>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <td>토픽ID&nbsp;&nbsp;&nbsp;&nbsp;종목코드</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <input id="save_topicStock_topicId" style="width:40pt">
+                    <input id="save_topicStock_stockCode" style="width:70pt">
+                </td>
+            </tr>
+            <tr>
+                <td><input type=button id="save_topicStock" style="WIDTH: 130pt; HEIGHT: 20pt" value="저장"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="width:40%;float:left">
+        <table class="table table-striped" style="border: 1px solid black;">
+
+            <thead>
+            <tr>
+                <th style="border: 1px solid black;">ID</th>
+                <th style="border: 1px solid black; width: 40%;">날짜</th>
+                <th style="border: 1px solid black; width: 40%;">종가</th>
+            </tr>
+            </thead>
+
+            <tbody id="stockDaily_list">
+            <tr th:each="stockDaily : ${stockDailies}">
+                <td th:text="${stockDaily.stockDailyId}"></td>
+                <td th:text="${stockDaily.stockDate}"></td>
+                <td th:text="${stockDaily.price}"></td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+
+    <script th:src="@{/resources/static/assets/jquery.min.js}"></script>
+    <th:block layout:fragment="script">
+        <script type="text/javascript">
+
+        $("#save_topic").click(function(){
+            var topicName = $("#save_topic_name").val();
+            $.ajax({
+                url : '/topic/create',
+                type : 'post',
+                data : { 'topicName' : topicName },
+                success : function(data) {
+                    location.reload();
+                },
+                error : function(err) {
+                    alert("저장실패\n"+err);
+                }
+            });
+        });
+
+        $(document).on("click", ".delete_topic", function(){
+            var topicId = $(this).parents('td').siblings('td').first().text()
+
+            $.ajax({
+                url : '/topic/delete',
+                type : 'post',
+                data : { 'topicId' : topicId },
+                success : function(data) {
+                    location.reload();
+                },
+                error : function(err) {
+                    alert("삭제실패\n"+err);
+                }
+            });
+        });
+
+        $(document).on("click", ".select_topic", function(){
+            var topicId = $(this).siblings('td').first().text()
+
+            $.ajax({
+                url : '/topic/stock/read',
+                type : 'get',
+                data : { 'topicId' : topicId },
+                success : function(data) {
+                    $("#topicStock_list").replaceWith(data);
+                },
+                error : function(err) {
+                    alert("조회실패\n"+err);
+                }
+            });
+        });
+
+        $("#save_topicStock").click(function(){
+            var topicId = $("#save_topicStock_topicId").val();
+            var stockCode = $("#save_topicStock_stockCode").val();
+
+            $.ajax({
+                url : '/topic/stock/create',
+                type : 'post',
+                data : { 'topicId' : topicId,
+                         'stockCode' : stockCode,},
+                success : function(data) {
+                    location.reload();
+                },
+                error : function(err) {
+                    alert("저장실패\n"+err);
+                }
+            });
+        });
+
+        $(document).on("click", ".delete_topicStock", function(){
+            var topicStockId = $(this).parents('td').siblings('td').first().text()
+
+            $.ajax({
+                url : '/topic/stock/delete',
+                type : 'post',
+                data : { 'topicStockId' : topicStockId },
+                success : function(data) {
+                    location.reload();
+                },
+                error : function(err) {
+                    alert("삭제실패\n"+err);
+                }
+            });
+        });
+
+        $(document).on("click", ".select_topicStock", function(){
+            var stockCode = $(this).siblings('td').first().next().text()
+            console.log(stockCode);
+
+            $.ajax({
+                url : '/stock/daily/read',
+                type : 'get',
+                data : { 'stockCode' : stockCode },
+                success : function(data) {
+                    console.log(data);
+                    $("#stockDaily_list").replaceWith(data);
+                },
+                error : function(err) {
+                    alert("조회실패\n"+err);
+                }
+            });
+
+        });
+
+        </script>
+    </th:block>
+
+</div>
+</body>
+
+</html>
